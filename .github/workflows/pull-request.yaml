@@ -20,5 +20,8 @@ jobs:
         with:
           go-version: ${{ env.GOLANG_VERSION }}
 
+      - name: install tools
+        run: make get-tools
+
       - name: test
-        run: make test lint scan
+        run: make test-unit lint scan
