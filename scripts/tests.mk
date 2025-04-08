@@ -10,6 +10,9 @@ test: test-unit test-integration ## Run all tests
 test-unit: ## Run unit tests
 	go test -coverprofile $(COVER_OUTPUT_RAW) --short -cover  -failfast ./...
 
+test-unit-watch: ## Run unit tests in watch mode
+	gow test -coverprofile $(COVER_OUTPUT_RAW) --short -cover  -failfast ./...
+
 test-integration: build ## Run integration test
 	ENV=DEV ./pyrotic -p example/_templates generate fakr --meta foo=bar,bin=baz,enum_list=a-long-list
 

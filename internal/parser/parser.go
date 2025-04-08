@@ -71,10 +71,18 @@ func New(dirPath string, sharedPath string, fileSuffix string) (TemplateEngine, 
 
 func (te *TemplateEngine) Parse(data TemplateData) ([]TemplateData, error) {
 	result := []TemplateData{}
+
 	for name, tmpl := range te.templates {
+
 		newData, err := parse(name, tmpl, data, te.funcs, te.sharedTemplates)
 		if err != nil {
 			return result, err
+		}
+
+		fileEx := filepath.Ext(newData.To)
+		if !strings.Contains(fileEx, "go") {
+			result = append(result, newData)
+			continue
 		}
 
 		formattedOut, err := format.Source(newData.Output)
@@ -82,6 +90,7 @@ func (te *TemplateEngine) Parse(data TemplateData) ([]TemplateData, error) {
 			log.Printf(chalk.Red("error formatting: %s"), err)
 			return result, err
 		}
+
 		newData.Output = formattedOut
 		result = append(result, newData)
 	}
