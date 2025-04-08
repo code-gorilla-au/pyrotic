@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/code-gorilla-au/odize"
+	"github.com/code-gorilla-au/pyrotic/internal/testfixtures"
 )
 
 func Test_withTemplates(t *testing.T) {
@@ -52,25 +53,68 @@ func Test_withTemplates(t *testing.T) {
 	}
 }
 
-func TestTmplEngine_Parse_should_render(t *testing.T) {
-	strTmp := `---
-	to: elo
-	---
-	blah
-	`
+func TestTmplEngine_Parse(t *testing.T) {
+	group := odize.NewGroup(t, nil)
+
 	expected := TemplateData{
 		Name: "hello",
 	}
-	te := &TemplateEngine{
-		templates: map[string]string{"tmp": strTmp},
-		funcs:     defaultFuncs,
-	}
-	data, err := te.Parse(expected)
+
+	var te *TemplateEngine
+
+	group.BeforeEach(func() {
+		strGoFile := `---
+		to: elo.go
+		---
+		blah
+		`
+
+		strNonGoFile := `---
+		to: {{ "elo" | caseSnake }}
+		---
+		blah
+		`
+
+		te = &TemplateEngine{
+			templates: map[string]string{
+				"tmp":  strGoFile,
+				"tmp2": strNonGoFile,
+			},
+			funcs: defaultFuncs,
+		}
+	})
+
+	err := group.
+		Test("should parse go file and format", func(t *testing.T) {
+			data, err := te.Parse(expected)
+			odize.AssertNoError(t, err)
+
+			result, found := testfixtures.Find(data, func(d TemplateData) bool {
+				return d.To == "elo.go"
+			})
+			odize.AssertTrue(t, found)
+
+			odize.AssertEqual(t, expected.Name, result.Name)
+			odize.AssertEqual(t, "elo.go", result.To)
+			odize.AssertEqual(t, "blah", strings.TrimSpace(string(result.Output)))
+		}).
+		Test("should parse non go file", func(t *testing.T) {
+			data, err := te.Parse(expected)
+
+			result, found := testfixtures.Find(data, func(d TemplateData) bool {
+				return d.To == "elo"
+			})
+			odize.AssertTrue(t, found)
+
+			odize.AssertNoError(t, err)
+			odize.AssertEqual(t, expected.Name, result.Name)
+			odize.AssertEqual(t, "elo", result.To)
+			odize.AssertEqual(t, "blah", strings.TrimSpace(string(result.Output)))
+		}).
+		Run()
 	odize.AssertNoError(t, err)
-	odize.AssertEqual(t, expected.Name, data[0].Name)
-	odize.AssertEqual(t, "elo", data[0].To)
-	odize.AssertEqual(t, "blah", strings.TrimSpace(string(data[0].Output)))
 }
+
 func TestTmplEngine_Parse_missing_funcs_should_fail_on_meta_parse(t *testing.T) {
 	strTmp := `---
 	to: {{ "elo" | caseSnake }}

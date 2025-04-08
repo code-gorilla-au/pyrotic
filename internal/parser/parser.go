@@ -79,15 +79,16 @@ func (te *TemplateEngine) Parse(data TemplateData) ([]TemplateData, error) {
 			return result, err
 		}
 
-		var formattedOut []byte
+		fileEx := filepath.Ext(newData.To)
+		if !strings.Contains(fileEx, "go") {
+			result = append(result, newData)
+			continue
+		}
 
-		fileEx := filepath.Ext(data.To)
-		if strings.Contains(fileEx, "go") {
-			formattedOut, err = format.Source(newData.Output)
-			if err != nil {
-				log.Printf(chalk.Red("error formatting: %s"), err)
-				return result, err
-			}
+		formattedOut, err := format.Source(newData.Output)
+		if err != nil {
+			log.Printf(chalk.Red("error formatting: %s"), err)
+			return result, err
 		}
 
 		newData.Output = formattedOut
