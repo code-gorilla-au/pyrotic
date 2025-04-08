@@ -80,7 +80,7 @@ func (te *TemplateEngine) Parse(data TemplateData) ([]TemplateData, error) {
 		}
 
 		fileEx := filepath.Ext(newData.To)
-		if !strings.Contains(fileEx, "go") {
+		if !strings.Contains(fileEx, ".go") {
 			result = append(result, newData)
 			continue
 		}
