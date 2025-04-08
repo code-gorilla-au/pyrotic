@@ -1,13 +1,13 @@
 module github.com/code-gorilla-au/pyrotic
 
-go 1.22.4
+go 1.24.1
 
 require (
 	github.com/code-gorilla-au/odize v1.3.4
 	github.com/gobuffalo/flect v1.0.3
 	github.com/mattn/go-isatty v0.0.20
 	github.com/spf13/cobra v1.9.1
-	golang.org/x/text v0.22.0
+	golang.org/x/text v0.24.0
 )
 
 require (
@@ -16,5 +16,5 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
 )
