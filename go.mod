@@ -7,7 +7,7 @@ require (
 	github.com/gobuffalo/flect v1.0.3
 	github.com/mattn/go-isatty v0.0.20
 	github.com/spf13/cobra v1.9.1
-	golang.org/x/text v0.24.0
+	golang.org/x/text v0.25.0
 )
 
 require (
