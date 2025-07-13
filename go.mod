@@ -1,6 +1,6 @@
 module github.com/code-gorilla-au/pyrotic
 
-go 1.24.1
+go 1.24.4
 
 require (
 	github.com/code-gorilla-au/odize v1.3.4
