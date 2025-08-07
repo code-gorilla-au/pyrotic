@@ -107,6 +107,7 @@ func hydrateTemplateData(meta []string, data TemplateData) (TemplateData, error)
 
 	tmp := map[string]string{}
 	for _, item := range meta {
+
 		tokens := strings.Split(strings.TrimSpace(item), tokenColon)
 		if len(tokens) != 2 {
 			return result, fmt.Errorf("%w : %s", ErrMalformedTemplate, item)
@@ -121,32 +122,21 @@ func hydrateTemplateData(meta []string, data TemplateData) (TemplateData, error)
 			continue
 		}
 
-		switch field {
-		case fieldTo:
+		if field == fieldTo {
 			result.To = value
-		case fieldAfter:
-			result.InjectClause = InjectAfter
-			result.InjectMatcher = value
-		case fieldBefore:
-			result.InjectClause = InjectBefore
-			result.InjectMatcher = value
-		case fieldAppend:
-			result.Action = ActionAppend
-			stringAppend := value
-			if _, err := strconv.ParseBool(stringAppend); err != nil {
-				return result, ErrParsingBool
-			}
-		case fieldInject:
-			result.Action = ActionInject
-			stringAppend := value
-			if _, err := strconv.ParseBool(stringAppend); err != nil {
-				return result, ErrParsingBool
-			}
+			continue
 		}
+
+		var err error
+		result.ParseData, err = extractParsedData(field, value, result.ParseData)
+		if err != nil {
+			return result, err
+		}
+
 	}
 
 	// this will override any values pre-defined in the template,
-	// this is intended so you are able to have "sane defaults" as well as override via cmd
+	// this is intended, so you are able to have "sane defaults" as well as override via cmd
 	for key, value := range data.Meta {
 		tmp[key] = value
 	}
