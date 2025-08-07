@@ -103,7 +103,7 @@ func hydrateData(meta []string, data TemplateData) (TemplateData, error) {
 		Name:      data.Name,
 		ParseData: data.ParseData,
 	}
-	result.ParseData.Action = ActionCreate
+	result.Action = ActionCreate
 
 	tmp := map[string]string{}
 	for _, item := range meta {
@@ -116,19 +116,19 @@ func hydrateData(meta []string, data TemplateData) (TemplateData, error) {
 		case fieldTo:
 			result.To = strings.TrimSpace(tokens[1])
 		case fieldAfter:
-			result.ParseData.InjectClause = InjectAfter
-			result.ParseData.InjectMatcher = strings.TrimSpace(tokens[1])
+			result.InjectClause = InjectAfter
+			result.InjectMatcher = strings.TrimSpace(tokens[1])
 		case fieldBefore:
-			result.ParseData.InjectClause = InjectBefore
-			result.ParseData.InjectMatcher = strings.TrimSpace(tokens[1])
+			result.InjectClause = InjectBefore
+			result.InjectMatcher = strings.TrimSpace(tokens[1])
 		case fieldAppend:
-			result.ParseData.Action = ActionAppend
+			result.Action = ActionAppend
 			stringAppend := strings.TrimSpace(tokens[1])
 			if _, err := strconv.ParseBool(stringAppend); err != nil {
 				return result, ErrParsingBool
 			}
 		case fieldInject:
-			result.ParseData.Action = ActionInject
+			result.Action = ActionInject
 			stringAppend := strings.TrimSpace(tokens[1])
 			if _, err := strconv.ParseBool(stringAppend); err != nil {
 				return result, ErrParsingBool
