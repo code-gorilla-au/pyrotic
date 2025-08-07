@@ -70,7 +70,7 @@ func generateParseData(tmplName string, meta []string, data TemplateData, funcs 
 		parsedMeta = append(parsedMeta, buf.String())
 	}
 
-	return hydrateData(parsedMeta, data)
+	return hydrateTemplateData(parsedMeta, data)
 
 }
 
@@ -98,49 +98,45 @@ func generateTemplate(tmplName, tmplOutput string, data TemplateData, funcs temp
 	return buf.Bytes(), nil
 }
 
-func hydrateData(meta []string, data TemplateData) (TemplateData, error) {
+func hydrateTemplateData(meta []string, data TemplateData) (TemplateData, error) {
 	result := TemplateData{
 		Name:      data.Name,
 		ParseData: data.ParseData,
 	}
-	result.ParseData.Action = ActionCreate
+	result.Action = ActionCreate
 
 	tmp := map[string]string{}
 	for _, item := range meta {
+
 		tokens := strings.Split(strings.TrimSpace(item), tokenColon)
 		if len(tokens) != 2 {
 			return result, fmt.Errorf("%w : %s", ErrMalformedTemplate, item)
 		}
 
-		switch strings.TrimSpace(tokens[0]) {
-		case fieldTo:
-			result.To = strings.TrimSpace(tokens[1])
-		case fieldAfter:
-			result.ParseData.InjectClause = InjectAfter
-			result.ParseData.InjectMatcher = strings.TrimSpace(tokens[1])
-		case fieldBefore:
-			result.ParseData.InjectClause = InjectBefore
-			result.ParseData.InjectMatcher = strings.TrimSpace(tokens[1])
-		case fieldAppend:
-			result.ParseData.Action = ActionAppend
-			stringAppend := strings.TrimSpace(tokens[1])
-			if _, err := strconv.ParseBool(stringAppend); err != nil {
-				return result, ErrParsingBool
-			}
-		case fieldInject:
-			result.ParseData.Action = ActionInject
-			stringAppend := strings.TrimSpace(tokens[1])
-			if _, err := strconv.ParseBool(stringAppend); err != nil {
-				return result, ErrParsingBool
-			}
-		default:
-			key := strings.TrimSpace(tokens[0])
-			tmp[key] = strings.TrimSpace(tokens[1])
+		field := strings.ToLower(strings.TrimSpace(tokens[0]))
+		value := strings.TrimSpace(tokens[1])
+
+		if !hasMatchingField(field) {
+			key := field
+			tmp[key] = value
+			continue
 		}
+
+		if field == fieldTo {
+			result.To = value
+			continue
+		}
+
+		var err error
+		result.ParseData, err = extractParsedData(field, value, result.ParseData)
+		if err != nil {
+			return result, err
+		}
+
 	}
 
 	// this will override any values pre-defined in the template,
-	// this is intended so you are able to have "sane defaults" as well as override via cmd
+	// this is intended, so you are able to have "sane defaults" as well as override via cmd
 	for key, value := range data.Meta {
 		tmp[key] = value
 	}
@@ -149,10 +145,36 @@ func hydrateData(meta []string, data TemplateData) (TemplateData, error) {
 	return result, nil
 }
 
+func extractParsedData(field, value string, result ParseData) (ParseData, error) {
+
+	switch field {
+	case fieldAfter:
+		result.InjectClause = InjectAfter
+		result.InjectMatcher = value
+	case fieldBefore:
+		result.InjectClause = InjectBefore
+		result.InjectMatcher = value
+	case fieldAppend:
+		result.Action = ActionAppend
+		stringAppend := value
+		if _, err := strconv.ParseBool(stringAppend); err != nil {
+			return result, ErrParsingBool
+		}
+	case fieldInject:
+		result.Action = ActionInject
+		stringAppend := value
+		if _, err := strconv.ParseBool(stringAppend); err != nil {
+			return result, ErrParsingBool
+		}
+	}
+
+	return result, nil
+}
+
 func extractMetaDataFromTemplate(template string) ([]string, string) {
 	rawOut := strings.Split(template, tokenNewLine)
-	meta := []string{}
-	output := []string{}
+	var meta []string
+	var output []string
 	count := 0
 	for index, s := range rawOut {
 		trimmed := strings.TrimSpace(s)
@@ -170,4 +192,17 @@ func extractMetaDataFromTemplate(template string) ([]string, string) {
 		}
 	}
 	return meta, strings.Join(output, tokenNewLine)
+}
+
+func hasMatchingField(maybeField string) bool {
+	repo := map[string]struct{}{
+		fieldTo:     {},
+		fieldAppend: {},
+		fieldInject: {},
+		fieldAfter:  {},
+		fieldBefore: {},
+	}
+
+	_, ok := repo[maybeField]
+	return ok
 }

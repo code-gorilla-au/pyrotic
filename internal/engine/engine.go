@@ -45,7 +45,7 @@ func (c *Core) Generate(data Data) error {
 	}
 
 	for _, item := range parsedOutput {
-		switch item.ParseData.Action {
+		switch item.Action {
 		case parser.ActionAppend:
 			if err := c.fwr.AppendFile(item.To, item.Output); err != nil {
 				log.Println("error appending file ", err)

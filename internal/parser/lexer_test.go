@@ -224,7 +224,7 @@ func Test_hydrateData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := hydrateData(tt.args.meta, tt.args.data)
+			got, err := hydrateTemplateData(tt.args.meta, tt.args.data)
 			if tt.wantErr {
 				odize.AssertTrue(t, errors.Is(err, tt.err))
 			}
@@ -265,7 +265,7 @@ func Test_extractMeta(t *testing.T) {
 				to: foo
 				`,
 			},
-			meta:   []string{},
+			meta:   nil,
 			output: "",
 		},
 		{
@@ -285,10 +285,10 @@ func Test_extractMeta(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1 := extractMetaDataFromTemplate(tt.args.output)
 			if !reflect.DeepEqual(got, tt.meta) {
-				t.Errorf("extractMeta() got = %v, want %v", got, tt.meta)
+				t.Errorf("extractMetaDataFromTemplate() got = %v, want %v", got, tt.meta)
 			}
 			if strings.TrimSpace(got1) != tt.output {
-				t.Errorf("extractMeta() got1 = %v, want %v", got1, tt.output)
+				t.Errorf("extractMetaDataFromTemplate() got1 = %v, want %v", got1, tt.output)
 			}
 		})
 	}
