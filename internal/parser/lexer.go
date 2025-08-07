@@ -112,7 +112,7 @@ func hydrateTemplateData(meta []string, data TemplateData) (TemplateData, error)
 			return result, fmt.Errorf("%w : %s", ErrMalformedTemplate, item)
 		}
 
-		field := strings.TrimSpace(tokens[0])
+		field := strings.ToLower(strings.TrimSpace(tokens[0]))
 		value := strings.TrimSpace(tokens[1])
 
 		if !hasMatchingField(field) {
@@ -155,8 +155,7 @@ func hydrateTemplateData(meta []string, data TemplateData) (TemplateData, error)
 	return result, nil
 }
 
-func extractParsedData(field, value string) (ParseData, error) {
-	result := ParseData{}
+func extractParsedData(field, value string, result ParseData) (ParseData, error) {
 
 	switch field {
 	case fieldAfter:
@@ -177,8 +176,6 @@ func extractParsedData(field, value string) (ParseData, error) {
 		if _, err := strconv.ParseBool(stringAppend); err != nil {
 			return result, ErrParsingBool
 		}
-	default:
-		return result, ErrNoMatchingField
 	}
 
 	return result, nil
@@ -186,8 +183,8 @@ func extractParsedData(field, value string) (ParseData, error) {
 
 func extractMetaDataFromTemplate(template string) ([]string, string) {
 	rawOut := strings.Split(template, tokenNewLine)
-	meta := []string{}
-	output := []string{}
+	var meta []string
+	var output []string
 	count := 0
 	for index, s := range rawOut {
 		trimmed := strings.TrimSpace(s)
