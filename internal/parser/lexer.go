@@ -155,6 +155,35 @@ func hydrateTemplateData(meta []string, data TemplateData) (TemplateData, error)
 	return result, nil
 }
 
+func extractParsedData(field, value string) (ParseData, error) {
+	result := ParseData{}
+
+	switch field {
+	case fieldAfter:
+		result.InjectClause = InjectAfter
+		result.InjectMatcher = value
+	case fieldBefore:
+		result.InjectClause = InjectBefore
+		result.InjectMatcher = value
+	case fieldAppend:
+		result.Action = ActionAppend
+		stringAppend := value
+		if _, err := strconv.ParseBool(stringAppend); err != nil {
+			return result, ErrParsingBool
+		}
+	case fieldInject:
+		result.Action = ActionInject
+		stringAppend := value
+		if _, err := strconv.ParseBool(stringAppend); err != nil {
+			return result, ErrParsingBool
+		}
+	default:
+		return result, ErrNoMatchingField
+	}
+
+	return result, nil
+}
+
 func extractMetaDataFromTemplate(template string) ([]string, string) {
 	rawOut := strings.Split(template, tokenNewLine)
 	meta := []string{}
