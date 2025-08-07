@@ -224,7 +224,7 @@ func Test_hydrateData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := hydrateData(tt.args.meta, tt.args.data)
+			got, err := hydrateTemplateData(tt.args.meta, tt.args.data)
 			if tt.wantErr {
 				odize.AssertTrue(t, errors.Is(err, tt.err))
 			}

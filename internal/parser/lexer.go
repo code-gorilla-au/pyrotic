@@ -70,7 +70,7 @@ func generateParseData(tmplName string, meta []string, data TemplateData, funcs 
 		parsedMeta = append(parsedMeta, buf.String())
 	}
 
-	return hydrateData(parsedMeta, data)
+	return hydrateTemplateData(parsedMeta, data)
 
 }
 
@@ -98,7 +98,7 @@ func generateTemplate(tmplName, tmplOutput string, data TemplateData, funcs temp
 	return buf.Bytes(), nil
 }
 
-func hydrateData(meta []string, data TemplateData) (TemplateData, error) {
+func hydrateTemplateData(meta []string, data TemplateData) (TemplateData, error) {
 	result := TemplateData{
 		Name:      data.Name,
 		ParseData: data.ParseData,
@@ -112,30 +112,36 @@ func hydrateData(meta []string, data TemplateData) (TemplateData, error) {
 			return result, fmt.Errorf("%w : %s", ErrMalformedTemplate, item)
 		}
 
-		switch strings.TrimSpace(tokens[0]) {
+		field := strings.TrimSpace(tokens[0])
+		value := strings.TrimSpace(tokens[1])
+
+		if !hasMatchingField(field) {
+			key := field
+			tmp[key] = value
+			continue
+		}
+
+		switch field {
 		case fieldTo:
-			result.To = strings.TrimSpace(tokens[1])
+			result.To = value
 		case fieldAfter:
 			result.InjectClause = InjectAfter
-			result.InjectMatcher = strings.TrimSpace(tokens[1])
+			result.InjectMatcher = value
 		case fieldBefore:
 			result.InjectClause = InjectBefore
-			result.InjectMatcher = strings.TrimSpace(tokens[1])
+			result.InjectMatcher = value
 		case fieldAppend:
 			result.Action = ActionAppend
-			stringAppend := strings.TrimSpace(tokens[1])
+			stringAppend := value
 			if _, err := strconv.ParseBool(stringAppend); err != nil {
 				return result, ErrParsingBool
 			}
 		case fieldInject:
 			result.Action = ActionInject
-			stringAppend := strings.TrimSpace(tokens[1])
+			stringAppend := value
 			if _, err := strconv.ParseBool(stringAppend); err != nil {
 				return result, ErrParsingBool
 			}
-		default:
-			key := strings.TrimSpace(tokens[0])
-			tmp[key] = strings.TrimSpace(tokens[1])
 		}
 	}
 
@@ -170,4 +176,17 @@ func extractMetaDataFromTemplate(template string) ([]string, string) {
 		}
 	}
 	return meta, strings.Join(output, tokenNewLine)
+}
+
+func hasMatchingField(maybeField string) bool {
+	repo := map[string]struct{}{
+		fieldTo:     {},
+		fieldAppend: {},
+		fieldInject: {},
+		fieldAfter:  {},
+		fieldBefore: {},
+	}
+
+	_, ok := repo[maybeField]
+	return ok
 }
