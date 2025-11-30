@@ -47,19 +47,19 @@ func (c *Core) Generate(data Data) error {
 	for _, item := range parsedOutput {
 		switch item.Action {
 		case parser.ActionAppend:
-			if err := c.fwr.AppendFile(item.To, item.Output); err != nil {
+			if err = c.fwr.AppendFile(item.To, item.Output); err != nil {
 				log.Println("error appending file ", err)
 				return err
 			}
 		case parser.ActionInject:
-			if err := c.fwr.InjectIntoFile(item.To, item.Output, writer.Inject{
+			if err = c.fwr.InjectIntoFile(item.To, item.Output, writer.Inject{
 				Matcher: item.InjectMatcher,
 				Clause:  writer.InjectClause(item.InjectClause),
 			}); err != nil {
 				return err
 			}
 		default:
-			if err := c.fwr.WriteFile(item.To, item.Output, 0750); err != nil {
+			if err = c.fwr.WriteFile(item.To, item.Output, 0750); err != nil {
 				log.Println("error writing to file ", err)
 				return err
 			}
