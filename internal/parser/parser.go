@@ -70,7 +70,7 @@ func New(dirPath string, sharedPath string, fileSuffix string) (TemplateEngine, 
 }
 
 func (te *TemplateEngine) Parse(data TemplateData) ([]TemplateData, error) {
-	result := []TemplateData{}
+	var result []TemplateData
 
 	for name, tmpl := range te.templates {
 
@@ -121,9 +121,9 @@ func withTemplates(dirPath string, fileSuffix string) (map[string]string, error)
 }
 
 func orderTemplateData(data []TemplateData) []TemplateData {
-	create := []TemplateData{}
-	inject := []TemplateData{}
-	app := []TemplateData{}
+	var create []TemplateData
+	var inject []TemplateData
+	var app []TemplateData
 
 	for _, tmp := range data {
 		switch tmp.Action {
@@ -135,7 +135,7 @@ func orderTemplateData(data []TemplateData) []TemplateData {
 			app = append(app, tmp)
 		}
 	}
-	result := []TemplateData{}
+	var result []TemplateData
 	result = append(result, create...)
 	result = append(result, inject...)
 	result = append(result, app...)
