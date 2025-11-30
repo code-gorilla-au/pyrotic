@@ -15,7 +15,7 @@ func generateCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "generate <generator-name> --name <file-name>",
 		Short: "Generate template",
-		Long:  `Generate tempate by generator name. `,
+		Long:  `Generate template by generator name. `,
 		Run:   generateFunc(),
 	}
 }
