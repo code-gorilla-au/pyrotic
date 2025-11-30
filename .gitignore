@@ -15,4 +15,5 @@
 # vendor/
 pyrotic
 .vscode
+.idea
 # examples
