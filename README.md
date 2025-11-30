@@ -1,9 +1,9 @@
 # pyrotic
-code generator inspired by https://www.hygen.io/ for golang.
+code generator inspired by https://plopjs.com/ & https://github.com/jondot/hygen for golang.
 
 
 ## Motivation
-Why not use hygen? great question! I would recommend [hygen](https://www.hygen.io/) over this, however [hygen](https://www.hygen.io/) is written in js.
+Why not use hygen? great question! I would recommend [plop](https://plopjs.com/) over this, however [plop](https://plopjs.com/) is written in js.
 This project is for people who want to use a code generator and not have to install node. Pyrotic also is specifically written to generate go code, all templates are parsed using go's builtin template parser and output is formatted using go's built in code formatter.
 
 
@@ -75,38 +75,51 @@ pyrotic -s foo/bar generate cmd --name setup
 
 Formatter will pick up any of these variables within the `---` block and hydrate the metadata for the template. Any properties matching the signature will be added to the Meta property, for example `foo: bar` will be accessible by `{{ Meta.foo }}`. View more [examples](example/_templates).
 
-| Property | Type | Default | Example |
-| -------- | ---- | ------- | ------- |
-| to: | string (path) | "" | src/lib/utils/readme.md |
-| append: | bool | false | false |
-| inject: | bool | false | false |
-| before: | string | "" | type config struct |
-| after: | string | "" | // commands |
+| Property | Type          | Default | Example                 |
+|----------|---------------|---------|-------------------------|
+| to:      | string (path) | ""      | src/lib/utils/readme.md |
+| append:  | bool          | false   | false                   |
+| inject:  | bool          | false   | false                   |
+| before:  | string        | ""      | type config struct      |
+| after:   | string        | ""      | // commands             |
+
+
+### Variables within formater properties
+
+Tool's two-stage parser hydrates the data within the `---` blocks before parsing the template.
+
+| Property | Type          | Default | Example                                      |
+|----------|---------------|---------|----------------------------------------------|
+| to:      | string (path) | ""      | src/lib/{{ .Name }}/{{ Meta.readmeName }}.md |
+| append:  | bool          | false   | false                                        |
+| inject:  | bool          | false   | false                                        |
+| before:  | string        | ""      | type config struct                           |
+| after:   | string        | ""      | // commands                                  |
 
 
 ### Using shared templates
 
 In some instances you will want to reuse some templates across multiple generators. This can be done by having a `shared` directory within the `_templates` directory.
-Any templates that are declared in the [shared](example/_templates/shared/config.tmpl) directory will be loading along with the generator. [Reference](example/_templates/fakr/shared_config.tmpl) the shared template within your generator directory in order to inject / append / create file.
+Any templates that are declared in the [shared](example/_templates/shared/config.tmpl) directory will be loading along with the generator. [Reference](example/_templates/fakr/shared_config.tmpl) the shared template within your generator directory to inject / append / create file.
 
 
 ## Built in template functions
 
-ships with some already built in template funcs, some [examples](example/_templates/fakr/farkr_case.tmpl)
+ships with some already built in template funcs, some [examples](example/_templates/fakr/fakr_case.tmpl)
 
-| func name | description | code example | result |
-| --------- | ----------- | ------------ | ------ | 
-| caseSnake | convert to snake case | {{ MetaData \| caseSnake }} | meta_data |
-| caseKebab | convert to kebab case | {{ MetaData \| caseKebab }} | meta-data |
-| casePascal | convert to pascal case | {{ meta_data \| casePascal }} | MetaData |
-| caseLower | convert to lower case | {{ MetaData \| caseLower }} | metadata |
-| caseTitle | convert to title case | {{ MetaData \| caseTitle }} | METADATA |
-| caseCamel | convert to camel case | {{ MetaData \| caseCamel }} | metaData |
-| splitByDelimiter | splits string by delimiter | {{ splitByDelimiter "long,list" "," }} | []string{"long" "list"} |
-| splitAfterDelimiter | splits string after delimiter | {{ splitAfterDelimiter "a,long,list" "," }} | []string{"a," "long," "list"} |
-| contains | checks if string contains substring | {{ contains "foobarbin" "bar" }} | true |
-| hasPrefix | checks if string has the prefix | {{ contains "foobarbin" "foo" }} | true |
-| hasSuffix | checks if string has the suffix | {{ contains "foobarbin" "bin" }} | true |
+| func name           | description                         | code example                                | result                        |
+|---------------------|-------------------------------------|---------------------------------------------|-------------------------------| 
+| caseSnake           | convert to snake case               | {{ MetaData \| caseSnake }}                 | meta_data                     |
+| caseKebab           | convert to kebab case               | {{ MetaData \| caseKebab }}                 | meta-data                     |
+| casePascal          | convert to pascal case              | {{ meta_data \| casePascal }}               | MetaData                      |
+| caseLower           | convert to lower case               | {{ MetaData \| caseLower }}                 | metadata                      |
+| caseTitle           | convert to title case               | {{ MetaData \| caseTitle }}                 | METADATA                      |
+| caseCamel           | convert to camel case               | {{ MetaData \| caseCamel }}                 | metaData                      |
+| splitByDelimiter    | splits string by delimiter          | {{ splitByDelimiter "long,list" "," }}      | []string{"long" "list"}       |
+| splitAfterDelimiter | splits string after delimiter       | {{ splitAfterDelimiter "a,long,list" "," }} | []string{"a," "long," "list"} |
+| contains            | checks if string contains substring | {{ contains "foobarbin" "bar" }}            | true                          |
+| hasPrefix           | checks if string has the prefix     | {{ contains "foobarbin" "foo" }}            | true                          |
+| hasSuffix           | checks if string has the suffix     | {{ contains "foobarbin" "bin" }}            | true                          |
 
 
 we also provide some Inflections using [flect](https://github.com/gobuffalo/flect)
