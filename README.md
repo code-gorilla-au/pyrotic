@@ -91,10 +91,6 @@ Tool's two-stage parser hydrates the data within the `---` blocks before parsing
 | Property | Type          | Default | Example                                      |
 |----------|---------------|---------|----------------------------------------------|
 | to:      | string (path) | ""      | src/lib/{{ .Name }}/{{ Meta.readmeName }}.md |
-| append:  | bool          | false   | false                                        |
-| inject:  | bool          | false   | false                                        |
-| before:  | string        | ""      | type config struct                           |
-| after:   | string        | ""      | // commands                                  |
 
 
 ### Using shared templates
