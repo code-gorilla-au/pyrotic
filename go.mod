@@ -3,11 +3,11 @@ module github.com/code-gorilla-au/pyrotic
 go 1.25.3
 
 require (
-	github.com/code-gorilla-au/odize v1.3.4
+	github.com/code-gorilla-au/odize v1.3.5
 	github.com/gobuffalo/flect v1.0.3
 	github.com/mattn/go-isatty v0.0.20
 	github.com/spf13/cobra v1.10.2
-	golang.org/x/text v0.33.0
+	golang.org/x/text v0.34.0
 )
 
 require (
